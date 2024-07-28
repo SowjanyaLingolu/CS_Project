@@ -57,7 +57,7 @@
             background: #5a6268;
             transform: scale(1.1);
         }
-        p{
+        p {
             color: rgb(39, 104, 179);
             font-size: 30px;
             font-weight: bold;
@@ -74,8 +74,6 @@
             width: 70%;
             height: 175px; /* Set the height of the message box */ 
             overflow: auto; 
-            
-            
         }
         .message-box textarea {
             background-color: #7696b6; /* Textarea background color */
@@ -85,7 +83,7 @@
             height: 150px;
             overflow: hidden;
         }
-        h1{
+        h1 {
             font-size: 25px;
         }
         .curtain {
@@ -161,38 +159,54 @@
 
         .confetti-piece:nth-child(even) {
             background-color: rgba(0, 255, 127, 0.8);
-            animation-duration: 3s;
+            animation-duration: 5s;
         }
-        .head{
+        .head {
             margin-top: 50px;
+        }
+        h2{
+            font-size: 25px;
+            padding: 7%;
+            color:#de162a;
+        }
+        h3{
+            font-size: 20px;
+            color: rgb(39, 104, 179)
         }
     </style>
 </head>
-<body>
-    <div class="curtain"></div>
-    <div class="content">
-    <div class="container">
-        <div class="head">
-                <p>Hurray...!!</p>
-        </div>
-        <div class="result-card">
-            <h1>Here is your secret message:</h1>
-            <div class="message-box">
-                   <textarea id="decodedMessage" class="form-control" readonly>{{ message }}</textarea>
+<body data-pass-key="{{ pass_key }}" data-file-path="{{ file_path }}">
+    <div class="content" id="content">
+        <div class="container">
+            <!-- Display only the pass key if it's available -->
+            <div id="passKeySection" style="display: none;">
+                <h2>** Remember the pass key to decode the encoded_video **</h2>
+                <h3>Your Pass Key is: {{ pass_key }}</h3>
             </div>
-                  <button id="backToMenu" class="btn btn-secondary mt-3" onclick="backToMenu()" >Back to Menu</button>
-                  <button  class="btn btn-secondary mt-3" onclick="clears()">clear</button>
+
+            <!-- Hide these elements when only the pass key is to be shown -->
+            <div id="fullContentSection">
+                <div class="head">
+                    <p>Hurray...!!</p>
+                </div>
+                <div class="result-card">
+                    <h1 id="secret">Here is your secret message:</h1>
+                    <div class="message-box">
+                        <textarea id="decodedMessage" class="form-control" readonly>{{ message }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Always show the "Back to Menu" button -->
+            <button id="backToMenu" class="btn btn-secondary mt-3" onclick="backToMenu()">Back to Menu</button>
         </div>
-    </div>
     </div>
     <div class="confetti" id="confetti"></div>
     <script>
         function backToMenu() {
             window.location.replace('{{ url_for("index") }}');
         }
-        function clears(){
-            document.getElementById("decodedMessage").innerHTML=" ";
-        }  
+
         function createConfetti() {
             const confettiContainer = document.getElementById('confetti');
             const numConfetti = 100;
@@ -223,11 +237,32 @@
         });
 
         window.onload = function() {
-            setTimeout(() => {
-                createConfetti();
-            }, 2000);
-        }  
+            // Retrieve pass key from the body data attribute
+            const passKey = document.body.getAttribute('data-pass-key');
+            const filePath = document.body.getAttribute('data-file-path');
+
+            const showOnlyPassKey = passKey !== ''; // Check if pass key is available
+
+            if (showOnlyPassKey) {
+                document.getElementById('passKeySection').style.display = 'block';
+                document.getElementById('fullContentSection').style.display = 'none';
+
+                // Hide the curtain and animation when showing only the pass key
+                document.getElementById('content').style.opacity = '1';
+
+                // Automatically trigger download after loading the page
+                if (filePath) {
+                    window.location.href = "{{ url_for('download_file', file_path=file_path) }}";
+                }
+            } else {
+                document.getElementById('passKeySection').style.display = 'none';
+                document.getElementById('fullContentSection').style.display = 'block';
+
+                setTimeout(() => {
+                    createConfetti();
+                }, 2000);
+            }
+        }
     </script>
 </body>
 </html>
-
