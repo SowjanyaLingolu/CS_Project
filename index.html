@@ -281,6 +281,11 @@
             padding: 10px; /* Padding inside the file input */
             margin-inline: 80px;
         }
+        #passkey-field .form-control {
+        margin-inline: 80px; /* Same margin as the file input */
+        max-width: 400px; /* Ensure the same maximum width */
+        padding: 10px; /* Same padding as the file input */
+        }
         .large-input {
         width: 100%; /* Adjust width as needed */
         height: 100px; /* Adjust height as needed */
@@ -391,8 +396,11 @@
                 <div class="section-card-content">
                     <h2 id="decode-title">Decode</h2>
                     <form id="decode-form-element" action="/decode" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="type" id="decode-steganography-type">
+                        <input type="hidden" name="type" id="decode-steganography-type" onchange="togglePassKeyField()">
                         <input type="file" name="file" class="form-control mb-3" id="decode-file" required>
+                        <div id="passkey-field" class="mb-3" >
+                            <input type="number" name="pass_key" class="form-control mb-3" placeholder="Enter Pass Key">
+                        </div>
                         <button type="submit" class="btn btn-primary">Decode</button>
                     </form>
                     <button class="btn btn-secondary mt-3" onclick="backToMenu()">Back</button>
@@ -413,6 +421,7 @@
                 document.getElementById('decode-steganography-type').value = type;
                 document.getElementById('decode-title').innerText = 'Decode ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Steganography';
                 setFileInputAccept(type, 'decode');
+                togglePassKeyField(type);
             }
         }
 
@@ -450,6 +459,19 @@
         function clearForm(formId) {
             document.getElementById(formId).reset();
         }
+        // Function to show/hide the pass key field based on the steganography type
+        function togglePassKeyField(type) {
+            const passKeyField = document.getElementById('passkey-field');
+            const passKeyInput = passKeyField.querySelector('input[name="pass_key"]');
+            if (type === 'video') {
+                passKeyField.style.display = 'block';
+                passKeyInput.setAttribute('required', 'required');
+            } else {
+                passKeyField.style.display = 'none';
+                passKeyInput.removeAttribute('required');
+            }
+        }
+
     </script>
 </body>
 </html>
