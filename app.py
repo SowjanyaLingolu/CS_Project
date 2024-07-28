@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import shutil
 from stegano import lsb
 from pydub import AudioSegment
@@ -127,7 +126,7 @@ def decode():
         clear_uploads_folder()
 
         return render_template('result.html', message=message, steganography_type=steganography_type)
-    return 'Invalid file type or no file uploaded.'
+    
 
 # Image Steganography
 def encode_image(file_path, message):
@@ -136,7 +135,7 @@ def encode_image(file_path, message):
     return file_path
 
 def decode_image(file_path):
-    return lsb.reveal(file_path) or 'No message found in image.'
+    return lsb.reveal(file_path)
 
 # Video Steganography
 def extract_frames(video_path, output_dir):
@@ -282,11 +281,11 @@ def encode_text(file_path, message):
 
 def decode_text(file_path):
     with open(file_path, 'r') as file:
-        return file.read() or 'No message found in text file.'
+        return file.read() 
 
 @app.errorhandler(405)
 def method_not_allowed(e):
-    return "Method Not Allowed. Please use POST request.", 405
+    print( "Method Not Allowed. Please use POST request.", 405)
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
