@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import cv2
+import shutil
 from stegano import lsb
 from pydub import AudioSegment
 from flask import Flask, request, render_template, send_file, redirect, url_for
@@ -20,13 +20,36 @@ app.config['MAPPINGS_FOLDER'] = MAPPINGS_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def clear_static_folder():
+    for filename in os.listdir(app.config['STATIC_FOLDER']):
+        file_path = os.path.join(app.config['STATIC_FOLDER'], filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+
+def clear_uploads_folder():
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/select/<steganography_type>', methods=['GET'])
 def select(steganography_type):
-    if steganography_type not in ['image', 'video', 'audio', 'text']:
+    if steganography_type not in ['image', 'audio', 'text']:
         return redirect(url_for('index'))
     return render_template('select.html', steganography_type=steganography_type)
 
@@ -43,24 +66,43 @@ def encode():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
+        encoded_file_path = None
+        pass_key = None
+
+        # Process encoding based on type
         if steganography_type == 'image':
             encoded_file_path = encode_image(file_path, message)
         elif steganography_type == 'video':
-            encoded_file_path = encode_video(file_path, message)
+            encoded_file_path, pass_key = encode_video(file_path, message)
         elif steganography_type == 'audio':
             encoded_file_path = encode_audio(file_path, message)
         elif steganography_type == 'text':
             encoded_file_path = encode_text(file_path, message)
 
-        if save_path:
+        # Save the encoded file to the specified path
+        if save_path and encoded_file_path:
             if not os.path.isabs(save_path):
                 save_path = os.path.join(app.config['UPLOAD_FOLDER'], save_path)
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             os.rename(encoded_file_path, save_path)
             encoded_file_path = save_path
 
-        return send_file(encoded_file_path, as_attachment=True)
+        # If video, show pass key in result.html
+        if steganography_type == 'video' and pass_key is not None:
+            return render_template('result.html', pass_key=pass_key, file_path=encoded_file_path)
+
+        # For other types, download the file directly
+        if encoded_file_path:
+            return send_file(encoded_file_path, as_attachment=True)
+
     return 'Invalid file type or no file uploaded.'
+
+@app.route('/download', methods=['GET'])
+def download_file():
+    file_path = request.args.get('file_path', None)
+    if file_path :
+        return send_file(file_path, as_attachment=True)
+    return 'File not found.'
 
 @app.route('/decode', methods=['POST'])
 def decode():
@@ -80,6 +122,9 @@ def decode():
             message = decode_audio(file_path)
         elif steganography_type == 'text':
             message = decode_text(file_path)
+
+        clear_static_folder()
+        clear_uploads_folder()
 
         return render_template('result.html', message=message, steganography_type=steganography_type)
     return 'Invalid file type or no file uploaded.'
@@ -143,7 +188,11 @@ def encode_video(input_video_path, message):
     output_video_path = os.path.join(app.config['STATIC_FOLDER'], os.path.basename(input_video_path))
     frames_to_video(frames_folder, output_video_path)
     
-    return output_video_path
+    # Calculate the pass key
+    pass_key = len(message) ^ 7777
+
+    # Return the output video path and pass key
+    return output_video_path, pass_key
 
 def decode_text_from_frames(frames_dir, text_length):
     frame_files = sorted(os.listdir(frames_dir))
@@ -163,6 +212,11 @@ def decode_video(input_video_path):
     
     text_length = int(request.form['pass_key']) ^ 7777  # Retrieve the pass_key from the form
     decoded_message = decode_text_from_frames(frames_folder, text_length)
+    try:
+        shutil.rmtree(frames_folder)
+        shutil.rmtree(mappings_folder)
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
     
     return decoded_message if decoded_message else 'No message found.'
 
