@@ -15,12 +15,12 @@
         <input type="text" name="save_path" id="save-path" placeholder="Enter path to save encoded file"><br>
         <button type="submit">Encode</button>
     </form>
-    <form action="{{ url_for('decode') }}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="type" value="{{ steganography_type }}">
-        <label for="file">Select file:</label>
-        <input type="file" name="file" id="file"><br>
+    <form action="{{ url_for('decode') }}" method="post" enctype="multipart/form-data" id="decode-form">
+        <input type="hidden" name="type" value="{{ steganography_type }}" id="decode-steganography-type">
+        <label for="decode-file">Select file:</label>
+        <input type="file" name="file" id="decode-file"><br>
         <button type="submit">Decode</button>
-    </form>
+    </form>    
     <a href="{{ url_for('index') }}">Back</a>
 </body>
 </html>
