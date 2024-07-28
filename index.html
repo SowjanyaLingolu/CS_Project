@@ -374,7 +374,7 @@
         <div class="cards hidden" id="encode-form">
             <div>
             <p>!..Choose the file which you want to keep secret and enter secret message then click on Encode button..!</p>
-            <header>**Don't Copy and Paste here**</header></div>
+            <header>**Make sure that, If you cpy-paste ur format must be integar**</header></div>
             <div class="section-card p-3 animate-fadeIn">
                 
                 <div class="section-card-content">
@@ -399,7 +399,7 @@
                         <input type="hidden" name="type" id="decode-steganography-type" onchange="togglePassKeyField()">
                         <input type="file" name="file" class="form-control mb-3" id="decode-file" required>
                         <div id="passkey-field" class="mb-3" >
-                            <input type="number" name="pass_key" class="form-control mb-3" placeholder="Enter Pass Key">
+                            <input type="number" name="pass_key" class="form-control mb-3" placeholder="Enter Pass Key" autocomplete="off">
                         </div>
                         <button type="submit" class="btn btn-primary">Decode</button>
                     </form>
