@@ -12,83 +12,90 @@
             background-size: cover;
             color: white;
             text-align: center;
-            padding-top: 50px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            animation: gradientShift 15s ease infinite;
+            overflow: hidden;
         }
-
-        .container {
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+       .container {
             display: flex;
             width: 100%;
             padding: 0 5%;
+            /* padding-top: 50px; */
             flex-direction: column;
             align-items: center;
+            /* overflow: hidden; */
         }
-
         .main-menu {
             display: flex;
             flex-direction: column;
-            height: 80vh;
             width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
+            /* margin-bottom: 5%; */
+            /* overflow-x: hidden;  */
+            overflow-y: hidden;
         }
-
-        .header {
+        /* .header {
             margin-bottom: 10px;
             color: #333;
-        }
- 
+        } */
         .bottom {
             display: flex;
-            height: 100%;
-            flex-direction: row;
+            width: 100%;
         }
-
         .description {
-            height: 96%;
-            width: 40%;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1% 1%;
             box-sizing: border-box;
-            background: rgba(58, 69, 78, 0.7);
+            background: rgba(40, 58, 73, 0.7);
+            box-shadow: 0 12px 24px rgba(22, 37, 50, 0.7);
+            transition: transform 0.4s, opacity 0.4s;
             border-radius: 15px;
             color: #fff;
-            margin-left: 60px; /* Add some space between description and buttons */
+            width: 100%;
         }
-       .description-box h3 {
-            margin: 0 0 10px 0; /* Adjust margin as needed */
-            text-align: center; /* Center the heading */
-        }
-       .description-box {
-            width: 400px; /* Adjust width as needed */
-            padding: 12px;
-            border: 1px solid #ccc; /* Optional: border for visibility */
-            background-color: #1e3d59; /* Set background color */
-            color: #ffffff; /* Set text color */
-            border-radius: 15px; /* Optional: rounded corners */
-            margin-inline: 2%;
-            margin-top: 3%;
+        .description-box h3 {
+             margin: 0 0 10px 0;
+             text-align: center;
+            }
+        .description-box {
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #1e3d59;
+            color: #ffffff;
+            border-radius: 15px;
+            max-width: none;
+            width: 86%;
         }
         .description-text {
             display: flex;
+            font-size: 17px;
             flex-direction: column;
         }
-
         .description-item {
             display: flex;
             align-items: baseline;
         }
         .bullet {
-            min-width: 20px; /* Width for the bullets */
+            min-width: 20px;
         }
         .text {
             flex: 1;
         }
-        .type-buttons  {
-            width: 50%;
+        .type-buttons {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            margin-left: 80px;
+            align-items: center;
+            width: 100%;
+            gap: 1%;
+            /* background-color: red; */
         }
         .card {
             background: rgba(76, 122, 162, 0.7);
@@ -99,47 +106,48 @@
             transition: transform 0.4s, opacity 0.4s;
             opacity: 0;
             transform: translateY(50px);
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 10px;
+            margin-bottom: 5px;
+            margin-top: 2px;
             position: relative;
-            overflow: hidden;
-            width: 80%;
+            width: 83%;
+            align-items: center;
         }
-       .cards {
+        .cards {
             display: flex;
-            flex-direction: column; /* Arrange child elements vertically */
-            justify-content: center; /* Center children vertically */
-            align-items: center; /* Center children horizontally */
-            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
         }
-        /* Styling for the description area */
         .cards > div:first-child {
             width: 100%;
             text-align: center;
             padding: 20px;
-            /*background: rgba(0, 0, 0, 0.6);  Semi-transparent background */
             color: #fff;
-            margin-bottom: 20px; /* Space between description and form */
-            border-radius: 20px; /* Optional: Rounded corners */
+            margin-bottom: 20px;
+            border-radius: 20px;
         }
-        /* Styling for the section card */
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+        }
         .section-card {
             background: rgba(76, 122, 162, 0.7);
             border-radius: 50px;
             box-shadow: 0 12px 24px rgba(76, 122, 162, 0.7);
             color: #fff;
-            padding: 20px;
+            padding: 30px;
             width: 100%;
-            max-width: 600px; /* Adjust as needed */
+            max-width: 600px;
             margin: 0 auto;
             position: relative;
             border-radius: 10px;
-        }   
+        }
         .card h2, .section-card h2 {
-            font-weight: 700;  
+            font-weight: 700;
         }
         .btn {
             border-radius: 25px;
@@ -224,116 +232,273 @@
             }
         }
         .animate-fadeIn {
-            animation: fadeIn 0.5s forwards;
-       
-        .bottom .description, .bottom .type-buttons {
-            width: 50%;
-            padding: 20px;
+            animation: fadeIn 0.5s forwards;    
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            border-radius: 20px;
+        }
+        .form-control {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 15px;
             box-sizing: border-box;
         }
+        #encode-file, #decode-file, #passkey-field .form-control {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            margin: 0 auto;
         }
-        .section-card-content {
-            border-radius: inherit; /* Ensure child elements inherit the parent's border radius */
+        #encoded-message {
+            max-width: 400px; /* Limit maximum width */
+            padding: 10px; /* Padding inside the text input */
+            margin: 0 auto;
+            font-size: 16px;
+            width: 100%;
+        }
+        .large-input {
+            width: 100%;
+            height: 100px;
+            font-size: 1.5em;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            resize: horizontal;
+        }
+        @media (max-width: 1208px) {
+            .bottom{
+                flex-direction: column;
+                gap: 10px;
+            }
         }
         p{
             color:  #333;
             font-size: 20px;
             font-weight: bold;
         }
-        header{
-            color:#de162a;
+        .login-form{
+            padding: 30px;
+            width: 400px;
         }
-        .form-container {
-            display: flex; /* Use flexbox for alignment */
-            flex-direction: column; /* Arrange children in a column */
-            align-items: center; /* Center align children horizontally */
-            justify-content: flex-end; /* Center align children vertically */
-            width: 100%; /* Full width of the parent container */
-            border-radius: 20px;
+        .registration-form{
+            /* padding: 30px; */
+            width: 350px;
+            /* margin-bottom: 800%; */
         }
-        .form-control {
-            width: 80%; /* Set a relative width */
-            max-width: 400px; /* Limit the maximum width */
-            padding: 10px; /* Add padding for better appearance */
-            border-radius: 5px; /* Rounded corners */
-            border: 1px solid #ddd; /* Light border color */
-            background-color: #fff; /* White background */
-            color: #333; /* Dark text color */
-            font-size: 1em; /* Standard font size */
-            margin-bottom: 15px; /* Space between fields */
-            box-sizing: border-box;   
+        #initial-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* padding: 20px; */
         }
-        /* Styling for file input */
-        #encode-file {
-            max-width: 400px; /* Limit maximum width */
-            padding: 10px; /* Padding inside the file input */
-            margin-inline: 80px;
+        .button-container {
+            display: flex;
+            justify-content: space-between; 
+            gap: 20px; /* Space between the buttons */
+            flex: 2;
         }
-        /* Styling for text input */
-        #encoded-message {
-            max-width: 400px; /* Limit maximum width */
-            padding: 10px; /* Padding inside the text input */
-            margin-inline: 80px;
-            font-size: 16px;
+        #pin-field-container .button-container button {
+            flex: 1; /* Optional: Make buttons the same width */
         }
-        #decode-file {
-            max-width: 400px; /* Limit maximum width */
-            padding: 10px; /* Padding inside the file input */
-            margin-inline: 80px;
+        #initial-page .button-container button {
+            background: linear-gradient(135deg, #5d9db2, #1d558d);
         }
-        #passkey-field .form-control {
-        margin-inline: 80px; /* Same margin as the file input */
-        max-width: 400px; /* Ensure the same maximum width */
-        padding: 10px; /* Same padding as the file input */
+        #intial-page .btn{
+            padding: 10px 20px;
+            display: flex;
         }
-        .large-input {
-        width: 100%; /* Adjust width as needed */
-        height: 100px; /* Adjust height as needed */
-        font-size: 1.5em; /* Adjust font size for better readability */
-        padding: 10px; /* Add padding for better text appearance */
-        border-radius: 10px; /* Make corners round */
-        border: 1px solid #ccc; /* Add a border */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-        resize: horizontal; /* Allow vertical resizing only */
+        #initial-page  h1{
+            color: whitesmoke;
+            font-size: 625%;
         }
-       
+        #pin-field-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .description-text{
+            gap: 2px;
+        }
+        .logout-btn button {
+            position: relative;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 22px;
+            margin-left: 6%;
+            border-radius: 28px;
+            margin-top: 2%;
+        }
+        .left-side {
+            width: 60%;
+            /* margin-right: 8%; */
+            margin-top: 6%;
+        }
+        .right-side {
+            width: 40%;
+            margin-top: 8%;
+        }
+        .main{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            padding-top: 5%;
+            gap: 17%;
+        }
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Make sure it is behind other content */
+        }
+        @media screen and (max-width:1050px){
+            .main{
+                flex-direction: column;
+                flex-wrap: wrap;
+            }
+            .right-side{
+                width: 400px;
+            }
+            body{
+                overflow: scroll;
+            }
+        }
+        @media screen and (max-width:690px) {
+            #initial-page  h1{
+                font-size: 80px;
+            }
+            body{
+                overflow: scroll;
+            }
+        }
+        @media screen and (max-width:549px) {
+            #initial-page  h1{
+                font-size: 50px;
+            }
+            body{
+                overflow: scroll;
+            }
+        }
+        /* h6{
+            color: red;
+        } */
+#registration-form .password-wrapper .toggle-password {
+    position: absolute;
+    top: 41%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: black;
+}
+#login-form .password-wrapper .toggle-passwordd {
+    position: absolute;
+    top: 56%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: black;
+}
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="main-menu" id="main-menu">
-            <div class="header">
-                <h1>Steganography Tool</h1>
+        <div class="main">
+            <div class="left-side" id="initial-page">
+                <h1>Welcome to Steganography Tool</h1>
+                <div class="button-container">
+                    <button class="btn btn-secondary" onclick="showSection('login-form')">Login</button>
+                    <button class="btn btn-secondary" onclick="showSection('registration-form')">Register</button>
+                </div>
             </div>
+    
+            <div class="right-side">
+                <!-- Login Form -->
+                <div class="login-form" id="login-form">
+                    <div class="section-card">
+                        <div class="section-card-content">
+                            <h2>Login</h2>
+                            <form action="/login" method="post">
+                                <input type="text" name="username" class="form-control" placeholder="Username" required autocomplete="off">
+                                <div class="password-wrapper">
+                                    <input type="password" name="password" id="passwordd" class="form-control" placeholder="Password" required autocomplete="off" maxlength="6">
+                                    <i class="toggle-passwordd fas fa-eye" id="togglePasswordd"></i>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Login</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Registration Form -->
+                <div class="registration-form hidden" id="registration-form">
+                    <div class="section-card">
+                        <div class="section-card-content">
+                            <h2>Register</h2>
+                            <form action="/register" method="post">
+                                <input type="text" name="username" class="form-control" placeholder="Username" required autocomplete="off">
+                                <div class="password-wrapper">
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required autocomplete="off" maxlength="6"
+                                        pattern="(?=.*\d)(?=.*[A-Z])(?=.*[@#$%^&+=]).{6}" title="Password must be at least 6 characters long, including a number, an uppercase letter, and a special character.">
+                                    <i class="toggle-password fas fa-eye" id="togglePassword"></i>
+                                </div>
+                                <input type="text" name="decode_pin" class="form-control" placeholder="Decode Pin" required autocomplete="off" maxlength="4"
+       pattern="\d{4}" title="Pin must be exactly 4 digits.">
+                                <h6>Password should be strong.</h6>
+                                <button type="submit" class="btn btn-primary mt-3">Register</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+     
+        <div class="main-menu hidden" id="main-menu">
             <div class="bottom">
                 <div class="description">
                     <div class="description-box" id="description-box">
                     <h3>DESCRIPTION:</h3>
                     <div class="description-text">
                         <div class="description-item">
-                            <div class="bullet">**</div>
-                            <div class="text">Steganography is like sending a hidden message in a way that only the intended receiver knows it's there.</div>
+                            <div class="bullet">^</div>
+                            <div class="text">Image Steganography is to hide the text within the image using pixels.</div>
                         </div>
                         <div class="description-item">
-                            <div class="bullet">**</div>
-                            <div class="text">There are several types of steganography, such as text, image, audio and video steganography.</div>
+                            <div class="bullet">^</div>
+                            <div class="text">Video Steganography is to hide the text within the frames inside the video using pixels.</div>
                         </div>
                         <div class="description-item">
-                            <div class="bullet">**</div>
-                            <div class="text"> Each type utilizes different mediums to conceal 
-                                information, making it a versatile and covert method 
-                                of communication.</div>
+                            <div class="bullet">^</div>
+                            <div class="text">Audio Steganography is to hide the text within the samples of audio using sample distribution.
+                            </div>
                         </div>
                         <div class="description-item">
-                            <div class="bullet">**</div>
-                            <div class="text">The tool can hide a text message inside any type which would be imperceptible to the naked eye but detectable by someone who knows how to look for it.</div>
+                            <div class="bullet">^</div>
+                            <div class="text">Text Steganography is to hide the text within the whitespace of paragraph.</div>
                         </div>
                         <div class="description-item">
-                            <div class="bullet">**</div>
+                            <div class="bullet">^</div>
                             <div class="text">The goal is to keep the existence of the hidden information unknown to anyone who isn't aware it's there.</div>
                         </div>
                         <div class="description-item">
-                            <div class="bullet">**</div>
+                            <div class="bullet">^</div>
                             <div class="text">This makes steganography a powerful tool for secure and private communication.</div>
                         </div>
                     </div>
@@ -370,6 +535,11 @@
                     </div>
                 </div>
             </div>
+            <div class="logout-btn" id="logout-btn">
+                <form action="{{ url_for('logout') }}" method="post">
+                    <button  type="submit">Logout</button>
+                </form>
+            </div>
         </div>
         <div class="cards hidden" id="encode-form">
             <div>
@@ -390,13 +560,30 @@
             </div>
         </div>
         <div class="cards hidden" id="decode-form">
-            <div>
+            <div id="close">
+                <p>!..Enter your decode pin here and click submit..!</p>
+            </div>
+            <div class="section-card p-3 animate-fadeIn" id="pin-field-container">
+                <div class="section-card-content">
+                    <div id="pin-field-container">
+                        <form id="decode-form-element">
+                            <input type="number" class="form-control mb-3" id="decode-pin" maxlength="4" placeholder="Enter Decode Pin" required>
+                            <div class="button-container">
+                                <button type="button" class="btn btn-primary" onclick="validatePin()">Submit</button>
+                                <button type="button" class="btn btn-secondary" onclick="backToMenu()">Back</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="section hidden" id="decode-form-content">
+            <div class="decode-description">
                 <p>!..Choose the file which you want to know the secret then click on Decode button..!</p></div>
             <div class="section-card p-3 animate-fadeIn">
                 <div class="section-card-content">
                     <h2 id="decode-title">Decode</h2>
-                    <form id="decode-form-element" action="/decode" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="type" id="decode-steganography-type" onchange="togglePassKeyField()">
+                    <form  action="/decode" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="type" id="decode-steganography-type">
                         <input type="file" name="file" class="form-control mb-3" id="decode-file" required>
                         <div id="passkey-field" class="mb-3" >
                             <input type="number" name="pass_key" class="form-control mb-3" placeholder="Enter Pass Key" autocomplete="off">
@@ -406,9 +593,254 @@
                     <button class="btn btn-secondary mt-3" onclick="backToMenu()">Back</button>
                 </div>
             </div>
+            </div>
         </div>
     </div>
+    
+
+</div>
+<canvas id="canvas"></canvas>
     <script>
+        const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // Toggle the icon
+        this.classList.toggle('fa-eye-slash');
+    });
+    const togglePasswordd = document.querySelector('#togglePasswordd');
+    const passwordd = document.querySelector('#passwordd');
+
+    togglePasswordd.addEventListener('click', function () {
+        // Toggle the type attribute
+        const type = passwordd.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordd.setAttribute('type', type);
+        // Toggle the icon
+        this.classList.toggle('fa-eye-slash');
+    });
+        
+          const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const mouse = {
+            x: null,
+            y: null,
+            radius: (canvas.height/50) * (canvas.width/500)
+        };
+
+        window.addEventListener('mousemove', function(event){
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color){
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+            }
+            draw(){
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            }
+            update(){
+                if(this.x > canvas.width || this.x < 0){
+                    this.directionX = -this.directionX;
+                }
+                if(this.y > canvas.height || this.y < 0){
+                    this.directionY = -this.directionY;
+                }
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if(distance < mouse.radius + this.size){
+                    if(mouse.x < this.x && this.x < canvas.width - this.size * 10){
+                        this.x += 10;
+                    }
+                    if(mouse.x > this.x && this.x > this.size * 10){
+                        this.x -= 10;
+                    }
+                    if(mouse.y < this.y && this.y < canvas.height - this.size * 10){
+                        this.y += 10;
+                    }
+                    if(mouse.y > this.y && this.y > this.size * 10){
+                        this.y -= 10;
+                    }
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function init(){
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for(let i = 0; i < numberOfParticles; i++){
+                let size = (Math.random() * 5) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 5) - 2.5;
+                let directionY = (Math.random() * 5) - 2.5;
+                let color = '#ffffff';
+
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        function animate(){
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+
+            for(let i = 0; i < particlesArray.length; i++){
+                particlesArray[i].update();
+            }
+            connect();
+        }
+
+        function connect(){
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++){
+                for (let b = a; b < particlesArray.length; b++){
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                    + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width/7) * (canvas.height/7)){
+                        opacityValue = 1 - (distance/20000);
+                        ctx.strokeStyle='rgba(255,255,255,' + opacityValue + ')';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', function(){
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            mouse.radius = (canvas.height/100) * (canvas.width/100);
+            init();
+        });
+
+        window.addEventListener('mouseout', function(){
+            mouse.x = undefined;
+            mouse.y = undefined;
+        });
+
+        init();
+        animate();
+
+        // Upto here canvas
+        document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.hash === "#main-menu") {
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('registration-form').classList.add('hidden');
+            document.getElementById('initial-page').style.display = 'none';
+        }
+    });// This is for result.html button
+        function showSection(sectionId) {
+            document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('registration-form').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+
+     document.getElementById('login-form').addEventListener('submit', handleLogin);
+    //  document.getElementById('registration-form').addEventListener('submit', handleRegister);
+    document.getElementById('registration-form').addEventListener('submit', handleRegister);
+    function handleLogin(event) {
+    event.preventDefault();
+    const loginForm = document.getElementById('login-form');
+    const username = loginForm.querySelector('input[name="username"]').value;
+    const password = loginForm.querySelector('input[name="password"]').value;
+    
+    // Send an AJAX request to the server to authenticate
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'username': username,
+            'password': password
+        })
+    })
+    .then(response => response.text())
+    .then(data => {
+        if (data.includes("Login successful")) {
+            // Hide the login form and initial page, show the main menu
+            loginForm.classList.add('hidden');
+            document.getElementById('initial-page').style.display = 'none';
+            document.getElementById('main-menu').classList.remove('hidden');
+        } else {
+            // Display an error message if login failed
+            alert('Login failed. Please check your credentials.');
+        }
+    })
+    .catch(error => {
+        console.error('Error during login:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+document.getElementById('registration-form').addEventListener('submit', handleRegister);
+
+function handleRegister(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const registrationForm = document.getElementById('registration-form');
+    const username = registrationForm.querySelector('input[name="username"]').value;
+    const password = registrationForm.querySelector('input[name="password"]').value;
+    const decodePin = registrationForm.querySelector('input[name="decode_pin"]').value;
+
+    // Send an AJAX request to the server to register the user
+    fetch('/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            'username': username,
+            'password': password,
+            'decode_pin': decodePin
+        })
+    })
+    .then(response => response.text())
+    .then(data => {
+        if (data.includes("Registration successful")) {
+            // Display success message
+            alert('Registration successful! Please log in.');
+            // Optionally, you can redirect the user to the login page or clear the form
+            registrationForm.reset(); // Clear the form after successful registration
+        } else {
+            // Display the error message returned by the server
+            alert(data); // This will show the error message
+        }
+    })
+    .catch(error => {
+        console.error('Error during registration:', error);
+        // alert('An error occurred during registration. Please try again.');
+    });
+}
+
+
+
+
         function navigateToForm(action, type) {
             document.getElementById('main-menu').classList.add('hidden');
             if (action === 'encode') {
@@ -418,6 +850,8 @@
                 setFileInputAccept(type, 'encode');
             } else if (action === 'decode') {
                 document.getElementById('decode-form').classList.remove('hidden');
+                document.getElementById('pin-field-container').classList.remove('hidden'); // Show the pin field
+                document.getElementById('decode-form-content').classList.add('hidden');
                 document.getElementById('decode-steganography-type').value = type;
                 document.getElementById('decode-title').innerText = 'Decode ' + type.charAt(0).toUpperCase() + type.slice(1) + ' Steganography';
                 setFileInputAccept(type, 'decode');
@@ -452,25 +886,65 @@
         function backToMenu() {
             document.getElementById('encode-form').classList.add('hidden');
             document.getElementById('decode-form').classList.add('hidden');
+            document.getElementById('pin-field-container').classList.add('hidden'); // Hide pin field container
             document.getElementById('main-menu').classList.remove('hidden');
             clearForm('encode-form-element');
             clearForm('decode-form-element');
         }
+        function backTo(){
+            document.getElementById('registration-form').classList.add('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('initial-page').classList.remove('hidden');
+        }
         function clearForm(formId) {
             document.getElementById(formId).reset();
         }
+        function validatePin(event) {
+    const pin = document.getElementById('decode-pin').value;
+
+    fetch('/validate-pin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ pin: pin })
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Handle server-side errors
+            return response.text().then(text => { throw new Error(text); });
+        }
+        return response.text();
+    })
+    .then(text => {
+        if (text === 'valid') {
+            // Hide PIN field and show decode form
+            document.getElementById('pin-field-container').style.display = 'none';
+            document.getElementById('close').style.display = 'none';
+            document.getElementById('decode-form-content').classList.remove('hidden');
+        } else {
+            alert('Incorrect PIN. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred:'+ error.message);
+    });
+}
+document.getElementById('decode-form-element').addEventListener('submit', validatePin);
         // Function to show/hide the pass key field based on the steganography type
         function togglePassKeyField(type) {
             const passKeyField = document.getElementById('passkey-field');
             const passKeyInput = passKeyField.querySelector('input[name="pass_key"]');
-            if (type === 'video') {
-                passKeyField.style.display = 'block';
-                passKeyInput.setAttribute('required', 'required');
-            } else {
+            if (type === 'image' || type==='text' || type==='audio') {
                 passKeyField.style.display = 'none';
                 passKeyInput.removeAttribute('required');
+            } else {
+                passKeyField.style.display = 'block';
+                passKeyInput.setAttribute('required', 'required');
             }
         }
+        
 
     </script>
 </body>
