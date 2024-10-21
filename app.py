@@ -1,12 +1,17 @@
 import os
 import shutil
 from stegano import lsb
+from PIL import Image
 from pydub import AudioSegment
-from flask import Flask, request, render_template, send_file, redirect, url_for
+from flask import Flask, request, Response, render_template, send_file, redirect, url_for, session
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+import sqlite3
 import subprocess
 
+
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 UPLOAD_FOLDER = 'uploads'
 STATIC_FOLDER = 'static'
@@ -40,11 +45,104 @@ def clear_uploads_folder():
                 shutil.rmtree(file_path)
         except Exception as e:
             print(f"Failed to delete {file_path}. Reason: {e}")
+# Database setup
+def init_db():
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                decode_pin TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
 
+init_db()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'username' in session:
+        return render_template('index.html', logged_in=True)
+    return render_template('index.html', logged_in=False)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
+        user = cursor.fetchone()
+
+    if user:
+        stored_password_hash = user[0]
+        print(f"Username entered: {username}")
+        print(f"User fetched from DB: {user}")
+        print(f"Stored hash: {stored_password_hash}")
+        
+        # Debug: Manually hash the input password and compare
+        
+        if check_password_hash(stored_password_hash, password):
+            session['username'] = username
+            return redirect(url_for('index')) and "Login successful"
+        else:
+            print("Password does not match.")
+            return 'Login failed. Please check your credentials.'
+    else:
+        print("No user found with that username.")
+        return 'Login failed. Please check your credentials.'
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    decode_pin = request.form.get('decode_pin')
+
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT username FROM users WHERE username = ?', (username,))
+        if cursor.fetchone():
+            return 'Username already exists. Please choose a different one.'
+
+        cursor.execute('INSERT INTO users (username, password, decode_pin) VALUES (?, ?, ?)', 
+                       (username, hashed_password, decode_pin))
+        conn.commit()
+
+    return redirect(url_for('index'))
+
+@app.route('/validate-pin', methods=['POST'])
+def validate_pin():
+    if 'username' not in session:
+        return Response('Not logged in', status=403, mimetype='text/plain')
+     
+    data = request.get_json()
+    pin = data.get('pin')
+
+    if  not pin:
+        return Response('PIN are required', status=400, mimetype='text/plain')
+    
+    username = session.get('username')
+
+    with sqlite3.connect('users.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT decode_pin FROM users WHERE username = ?', (username,))
+        row = cursor.fetchone()
+
+    if row and row[0] == pin:
+        return Response('valid', status=200, mimetype='text/plain')
+    else:
+        return Response('invalid', status=401, mimetype='text/plain')
+
+
 
 @app.route('/select/<steganography_type>', methods=['GET'])
 def select(steganography_type):
@@ -129,13 +227,88 @@ def decode():
     
 
 # Image Steganography
+def gen_data(data):
+    newd = []
+    for i in data:
+        newd.append(format(ord(i), '08b'))
+    return newd
+
+def mod_pix(pix, data):
+    datalist = gen_data(data)
+    lendata = len(datalist)
+    imdata = iter(pix)
+    for i in range(lendata):
+        pix = [value for value in imdata.__next__()[:3] +
+               imdata.__next__()[:3] +
+               imdata.__next__()[:3]]
+        for j in range(0, 8):
+            if (datalist[i][j] == '0') and (pix[j] % 2 != 0):
+                pix[j] -= 1
+            elif (datalist[i][j] == '1') and (pix[j] % 2 == 0):
+                pix[j] -= 1
+        if (i == lendata - 1):
+            if (pix[-1] % 2 == 0):
+                pix[-1] -= 1
+        else:
+            if (pix[-1] % 2 != 0):
+                pix[-1] -= 1
+        pix = tuple(pix)
+        yield pix[0:3]
+        yield pix[3:6]
+        yield pix[6:9]
+
+def encode_enc(newimg, data):
+    w = newimg.size[0]
+    (x, y) = (0, 0)
+    for pixel in mod_pix(newimg.getdata(), data):
+        newimg.putpixel((x, y), pixel)
+        if (x == w - 1):
+            x = 0
+            y += 1
+        else:
+            x += 1
+
 def encode_image(file_path, message):
-    secret = lsb.hide(file_path, message)
-    secret.save(file_path)
-    return file_path
+    try:
+        # Open and convert the image to PNG format for encoding
+        myimg = Image.open(file_path).convert('RGBA')
+        newimg = myimg.copy()
+        encode_enc(newimg, message)
+        
+        # Save the encoded image with the original filename and extension
+        original_extension = file_path.rsplit('.', 1)[1].lower()
+        new_file_path = file_path 
+
+        newimg.save(new_file_path, format='PNG')
+        
+        # Return the path to the saved encoded image
+        return new_file_path
+    except Exception as e:
+        print(f"Error encoding image: {e}")
+        return None
 
 def decode_image(file_path):
-    return lsb.reveal(file_path)
+    try:
+        # Open and convert the encoded image to PNG format for decoding
+        image = Image.open(file_path).convert('RGBA')
+        data = ''
+        imgdata = iter(image.getdata())
+        while (True):
+            pixels = [value for value in imgdata.__next__()[:3] +
+                      imgdata.__next__()[:3] +
+                      imgdata.__next__()[:3]]
+            binstr = ''
+            for i in pixels[:8]:
+                if i % 2 == 0:
+                    binstr += '0'
+                else:
+                    binstr += '1'
+            data += chr(int(binstr, 2))
+            if pixels[-1] % 2 != 0:
+                return data
+    except Exception as e:
+        print(f"Error decoding image: {e}")
+        return "Error decoding the image."
 
 # Video Steganography
 def extract_frames(video_path, output_dir):
@@ -165,6 +338,7 @@ def encode_text_in_frames(frames_dir, text):
 def frames_to_video(frames_dir, output_video_path, frame_rate=30):
     command = [
         'ffmpeg',
+        '-y',
         '-framerate', str(frame_rate),
         '-i', os.path.join(frames_dir, 'frame_%04d.png'),
         '-c:v', 'libx264',
@@ -193,18 +367,6 @@ def encode_video(input_video_path, message):
     # Return the output video path and pass key
     return output_video_path, pass_key
 
-def decode_text_from_frames(frames_dir, text_length):
-    frame_files = sorted(os.listdir(frames_dir))
-    decoded_message = ""
-    for i in range(text_length):
-        frame_file = frame_files[i]
-        frame_path = os.path.join(frames_dir, frame_file)
-        decoded_letter = lsb.reveal(frame_path)
-        if decoded_letter:
-            decoded_message += decoded_letter
-    return decoded_message
-
-
 def decode_video(input_video_path):
     mappings_folder = os.path.join(app.config['MAPPINGS_FOLDER'], os.path.basename(input_video_path))
     frames_folder = os.path.join(mappings_folder, 'frames')
@@ -218,6 +380,18 @@ def decode_video(input_video_path):
         print(f"Error during cleanup: {e}")
     
     return decoded_message if decoded_message else 'No message found.'
+
+def decode_text_from_frames(frames_dir, text_length):
+    frame_files = sorted(os.listdir(frames_dir))
+    decoded_message = ""
+    for i in range(text_length):
+        frame_file = frame_files[i]
+        frame_path = os.path.join(frames_dir, frame_file)
+        decoded_letter = lsb.reveal(frame_path)
+        if decoded_letter:
+            decoded_message += decoded_letter
+    return decoded_message
+
 
 # Audio Steganography
 def encode_audio(file_path, message):
@@ -290,4 +464,4 @@ def method_not_allowed(e):
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
-    app.run(debug=True)
+    app.run(debug=False)
