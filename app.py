@@ -1,8 +1,10 @@
+
 import os
 import shutil
 from stegano import lsb
 from PIL import Image
 from pydub import AudioSegment
+from bitarray import bitarray
 from flask import Flask, request, Response, render_template, send_file, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -394,25 +396,36 @@ def decode_text_from_frames(frames_dir, text_length):
 
 
 # Audio Steganography
-def encode_audio(file_path, message):
+def encode_audio(file_path: str, message: str) -> str:
+    # Load the audio file using pydub
     audio = AudioSegment.from_file(file_path)
+    
+    # Encode the message into the audio
     encoded_audio = encode_message_in_audio(audio, message)
+    
+    # Export the encoded audio to the same file path in WAV format
     encoded_audio.export(file_path, format='wav')
+    
     return file_path
 
-def encode_message_in_audio(audio, message):
-    raw_data = bytearray(audio.raw_data)
+def encode_message_in_audio(audio: AudioSegment, message: str) -> AudioSegment:
+    raw_data = bytearray(audio.raw_data)  # Convert audio data to a bytearray for modification
+    
+    # Convert the message into a binary string and append a null terminator '00000000'
     message_binary = ''.join(format(ord(char), '08b') for char in message) + '00000000'
 
+    # Check if the message can fit into the audio's raw data
     if len(message_binary) > len(raw_data) * 8:
         raise ValueError("Message is too long for the provided audio file.")
 
+    # Encode the message binary into the audio's raw data
     for i, bit in enumerate(message_binary):
         byte_index = i // 8
         bit_index = i % 8
         byte = raw_data[byte_index]
         raw_data[byte_index] = (byte & ~(1 << bit_index)) | (int(bit) << bit_index)
 
+    # Create a new AudioSegment object with the modified raw data
     encoded_audio = AudioSegment(
         raw_data,
         frame_rate=audio.frame_rate,
@@ -422,44 +435,73 @@ def encode_message_in_audio(audio, message):
 
     return encoded_audio
 
-def decode_message_from_audio(audio):
-    raw_data = bytearray(audio.raw_data)
-    extracted_bits = []
+def decode_message_from_audio(audio: AudioSegment) -> str:
+    raw_data = bytearray(audio.raw_data)  # Extract the raw data from the audio segment
+    extracted_bits = bitarray()  # Create a bitarray to store the extracted bits
 
+    # Loop through the raw audio data and extract the least significant bit from each byte
     for byte in raw_data:
         for bit_index in range(8):
-            extracted_bits.append(str((byte >> bit_index) & 1))
+            extracted_bits.append((byte >> bit_index) & 1)
 
-    binary_message = ''.join(extracted_bits)
-    
+    # Convert the extracted bits to a binary string
+    binary_message = extracted_bits.to01()  # Efficiently converts the bitarray to a string of 0s and 1s
     decoded_message = ''
+
+    # Convert the binary string into characters, one byte at a time
     for i in range(0, len(binary_message), 8):
         byte = binary_message[i:i+8]
         if len(byte) == 8:
-            char = chr(int(byte, 2))
-            if char == '\x00':
+            char = chr(int(byte, 2))  # Convert the binary byte to a character
+            if char == '\x00':  # Stop at the null terminator
                 break
             decoded_message += char
 
     return decoded_message
 
-def decode_audio(file_path):
+def decode_audio(file_path: str) -> str:
+    # Load the audio file using pydub
     audio = AudioSegment.from_file(file_path)
+    
+    # Decode the message from the audio
     return decode_message_from_audio(audio)
 
-# Text Steganography
 def encode_text(file_path, message):
-    with open(file_path, 'w') as file:
-        file.write(message)
+    # Convert the message into binary
+    binary_message = ''.join(format(ord(char), '08b') for char in message)
+    
+    # Encode binary message using zero-width characters
+    encoded_message = ''.join('\u200B' if bit == '0' else '\u200C' for bit in binary_message)
+
+    # Read original file content
+    with open(file_path, 'r', encoding='utf-8') as file:
+        original_content = file.read()
+    
+    # Append encoded message invisibly at the end
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.write(original_content + encoded_message)
+
     return file_path
 
 def decode_text(file_path):
-    with open(file_path, 'r') as file:
-        return file.read() 
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+
+    # Extract the encoded message by finding zero-width characters at the end
+    encoded_message = ''.join(char for char in content if char in ['\u200B', '\u200C'])
+    binary_message = ''.join('0' if char == '\u200B' else '1' for char in encoded_message)
+
+    # Convert binary to plain text
+    decoded_message = ''.join(chr(int(binary_message[i:i+8], 2)) for i in range(0, len(binary_message), 8))
+    
+    return decoded_message if decoded_message else 'No message found in text file.'
 
 @app.errorhandler(405)
 def method_not_allowed(e):
     print( "Method Not Allowed. Please use POST request.", 405)
+@app.errorhandler(404)
+def method_not_allowed(e):
+    print( "Method Not Allowed.", 405)
 
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
